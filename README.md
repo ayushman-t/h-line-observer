@@ -86,4 +86,15 @@ Calibrations are saved separately under `~/hydrogen_obs/cal_*/` and indexed in `
 
 ---
 
+## Data
+
+These scripts were used to collect 21 cm hydrogen line data with a 2.4-meter radio telescope dish at Aquila Radio Observatory. The datasets are openly published on Zenodo:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18847536.svg)](https://doi.org/10.5281/zenodo.18847536) — **Hydrogen Line 21cm Drift Scan, February 2026**
+3,320 observations across 12 sidereal loops · Corrected spectra + raw CSV · 2.4m dish + Airspy Mini
+
+Browse all datasets: [Tripathi, Ayushman on Zenodo](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Tripathi%2C%20Ayushman%22&l=list&p=1&s=10&sort=bestmatch)
+
+---
+
 Copyright (c) 2026 Ayushman Tripathi · MIT License
