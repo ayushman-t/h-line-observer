@@ -97,4 +97,10 @@ Browse all datasets: [Tripathi, Ayushman on Zenodo](https://zenodo.org/search?q=
 
 ---
 
+## Contact
+
+If you run into any issues with the scripts or have questions, feel free to reach out at ayushman_tripathi@icloud.com
+
+---
+
 Copyright (c) 2026 Ayushman Tripathi · MIT License
