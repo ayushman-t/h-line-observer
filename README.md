@@ -86,6 +86,16 @@ Calibrations are saved separately under `~/hydrogen_obs/cal_*/` and indexed in `
 
 ---
 
+## Results
+
+Collected with a 2.4m dish at Aquila Radio Observatory using these scripts:
+
+![Drift scan spectrogram — 12 sidereal loops, Feb 2026](images/drift_scan.png)
+
+![Stacked 3D waterfall — 3,320 observations across 240 RA bins](images/stacked.png)
+
+---
+
 ## Data
 
 These scripts were used to collect 21 cm hydrogen line data with a 2.4-meter radio telescope dish at Aquila Radio Observatory. The datasets are openly published on Zenodo:
