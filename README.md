@@ -4,16 +4,51 @@
 
 ---
 
-## Prerequisites
+## Installation
 
-- **Python 3.7+** — `sudo apt install python3`
-- **GNU Radio** — required by VIRGO for SDR data acquisition
-- **[VIRGO](https://virgo.readthedocs.io/en/latest/examples.html)** — the spectrometer engine both scripts use under the hood
+Linux is recommended. Both scripts depend on [VIRGO](https://github.com/0xCoto/Virgo) which handles all the SDR acquisition under the hood.
+
+### 1. GNU Radio + gr-osmosdr
+
+Required for acquiring data from your SDR. Not needed if you only want to analyze existing `.dat` files.
 
 ```bash
-sudo apt install python3 gnuradio
-pip install virgo --break-system-packages
+sudo apt install gnuradio gr-osmosdr
 ```
+
+To verify, open `gnuradio-companion` and check that **osmocom Source** appears in the Library panel on the right.
+
+### 2. VIRGO
+
+Install from PyPI:
+
+```bash
+pip install astro-virgo
+```
+
+This automatically installs **numpy**, **matplotlib**, and **astropy** — you do not need to install them separately.
+
+Or install from source:
+
+```bash
+git clone https://github.com/0xCoto/Virgo.git
+cd Virgo
+pip install .
+```
+
+Verify:
+
+```bash
+python -c "import virgo"
+```
+
+No output means it worked.
+
+> **Troubleshooting:** If you get `ImportError: No module named virgo`, there is likely a mismatch between your `pip` and `python` versions. Fix it with:
+> ```bash
+> python -m pip install astro-virgo
+> ```
+> On newer Debian/Ubuntu systems you may also need `--break-system-packages` or use a virtual environment.
 
 ---
 
