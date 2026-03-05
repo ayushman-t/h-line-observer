@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.dat
+*.png
+hydrogen_obs/
+*.conf
+.calibrations.json
