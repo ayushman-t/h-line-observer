@@ -50,6 +50,11 @@ No output means it worked.
 > ```
 > On newer Debian/Ubuntu systems you may also need `--break-system-packages` or use a virtual environment.
 
+> **matplotlib compatibility:** VIRGO has a known incompatibility with matplotlib 3.8+, which causes a `GrouperView` error when generating plots. The observation data itself is fine — only plotting is affected. To fix, downgrade matplotlib:
+> ```bash
+> pip install matplotlib==3.7.5
+> ```
+
 ---
 
 ## Which Script?

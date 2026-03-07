@@ -10,18 +10,35 @@ import json
 import subprocess
 from datetime import datetime
 
-DEVICE    = 'airspy=0,bias=1'
-RF_GAIN   = 15
-IF_GAIN   = 15
-BB_GAIN   = 15
 FREQUENCY = 1420405750
-BANDWIDTH = 3000000
 CHANNELS  = 1024
 N_FILTER  = 20
 M_FILTER  = 35
 
 OUTPUT_BASE = os.path.expanduser('~/hydrogen_obs')
 CAL_INDEX   = os.path.join(OUTPUT_BASE, '.calibrations.json')
+
+PRESETS = {
+    '1': {'name': 'Airspy Mini',           'device': 'airspy=0,bias=1', 'rf_gain': 15, 'if_gain': 15, 'bb_gain': 15, 'bandwidth': 3000000},
+    '2': {'name': 'Airspy R2',             'device': 'airspy=0,bias=1', 'rf_gain': 15, 'if_gain': 15, 'bb_gain': 15, 'bandwidth': 2500000},  # R2 supports 2500000 or 10000000
+    '3': {'name': 'RTL-SDR (bias tee on)', 'device': 'rtl=0,bias=1',   'rf_gain': 49, 'if_gain': 0,  'bb_gain': 0,  'bandwidth': 2400000},
+    '4': {'name': 'RTL-SDR (no bias tee)', 'device': 'rtl=0',          'rf_gain': 49, 'if_gain': 0,  'bb_gain': 0,  'bandwidth': 2400000},
+    '5': {'name': 'HackRF One',            'device': 'hackrf=0',        'rf_gain': 0,  'if_gain': 40, 'bb_gain': 62, 'bandwidth': 2500000},
+    '6': {'name': 'HackRF One (+amp)',     'device': 'hackrf=0',        'rf_gain': 14, 'if_gain': 40, 'bb_gain': 62, 'bandwidth': 2500000},
+}
+
+
+def select_sdr():
+    print("\n  Select your SDR:")
+    for k, p in PRESETS.items():
+        print(f"    {k}. {p['name']}")
+    while True:
+        choice = input("\n  Select: ").strip()
+        if choice in PRESETS:
+            sdr = PRESETS[choice]
+            print(f"\n  Using: {sdr['name']}  (bandwidth={sdr['bandwidth']/1e6:g}MHz)")
+            return sdr
+        print("  Invalid choice, try again")
 
 
 def find_virgo():
@@ -76,7 +93,7 @@ def select_calibration():
     return None
 
 
-def record_calibration():
+def record_calibration(sdr):
     print("\n" + "="*55)
     print("  RECORD CALIBRATION")
     print("="*55)
@@ -98,9 +115,9 @@ def record_calibration():
 
     subprocess.run([
         virgo,
-        '-da', DEVICE, '-f', str(FREQUENCY), '-b', str(BANDWIDTH),
+        '-da', sdr['device'], '-f', str(FREQUENCY), '-b', str(sdr['bandwidth']),
         '-c', str(CHANNELS), '-t', '1', '-d', str(duration),
-        '-rf', str(RF_GAIN), '-if', str(IF_GAIN), '-bb', str(BB_GAIN),
+        '-rf', str(sdr['rf_gain']), '-if', str(sdr['if_gain']), '-bb', str(sdr['bb_gain']),
         '-o', cal_file
     ])
 
@@ -109,7 +126,7 @@ def record_calibration():
     return cal_file
 
 
-def run_observation(duration, cal_file, output_dir, obs_id):
+def run_observation(sdr, duration, cal_file, output_dir, obs_id):
     print(f"\n{'='*55}\n  {obs_id}\n{'='*55}")
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     obs_file  = os.path.join(output_dir, f'{obs_id}_{timestamp}_observation.dat')
@@ -123,9 +140,9 @@ def run_observation(duration, cal_file, output_dir, obs_id):
     print(f"\n  Recording {duration}s...")
     cmd = [
         virgo,
-        '-da', DEVICE, '-f', str(FREQUENCY), '-b', str(BANDWIDTH),
+        '-da', sdr['device'], '-f', str(FREQUENCY), '-b', str(sdr['bandwidth']),
         '-c', str(CHANNELS), '-t', '1', '-d', str(duration),
-        '-rf', str(RF_GAIN), '-if', str(IF_GAIN), '-bb', str(BB_GAIN),
+        '-rf', str(sdr['rf_gain']), '-if', str(sdr['if_gain']), '-bb', str(sdr['bb_gain']),
         '-o', obs_file, '-p', plot_file,
         '-n', str(N_FILTER), '-m', str(M_FILTER)
     ]
@@ -143,6 +160,8 @@ def main():
     print(f"  Virgo  : {virgo or 'NOT FOUND — pip install virgo'}")
     print(f"  Output : {OUTPUT_BASE}")
 
+    sdr = select_sdr()
+
     while True:
         print("\n  1. Single observation")
         print("  2. Continuous loop")
@@ -154,7 +173,7 @@ def main():
             break
 
         elif choice == "3":
-            record_calibration()
+            record_calibration(sdr)
             input("\n  Press Enter...")
 
         elif choice in ("1", "2"):
@@ -162,7 +181,7 @@ def main():
             duration = int(dur) if dur.isdigit() else 60
 
             cal_choice = select_calibration()
-            cal_file   = record_calibration() if cal_choice == "NEW" else cal_choice
+            cal_file   = record_calibration(sdr) if cal_choice == "NEW" else cal_choice
 
             timestamp  = datetime.now().strftime('%Y%m%d_%H%M%S')
             label      = 'obs' if choice == '1' else 'loop'
@@ -170,7 +189,7 @@ def main():
             os.makedirs(output_dir, exist_ok=True)
 
             if choice == "1":
-                run_observation(duration, cal_file, output_dir, 'obs_0001')
+                run_observation(sdr, duration, cal_file, output_dir, 'obs_0001')
                 input("\n  Press Enter...")
             else:
                 import time
@@ -179,7 +198,7 @@ def main():
                 try:
                     while True:
                         count += 1
-                        run_observation(duration, cal_file, output_dir, f'obs_{count:04d}')
+                        run_observation(sdr, duration, cal_file, output_dir, f'obs_{count:04d}')
                         time.sleep(5)
                 except KeyboardInterrupt:
                     print(f"\n  Stopped after {count} observations")
