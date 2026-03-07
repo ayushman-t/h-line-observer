@@ -42,10 +42,10 @@ CONFIG_FILE = Path.home() / '.config' / 'h_observer.conf'
 PRESETS = {
     '1': {'name': 'Airspy Mini',           'device': 'airspy=0,bias=1', 'rf_gain': 15, 'if_gain': 15, 'bb_gain': 15, 'bandwidth': 3000000},
     '2': {'name': 'Airspy R2',             'device': 'airspy=0,bias=1', 'rf_gain': 15, 'if_gain': 15, 'bb_gain': 15, 'bandwidth': 2500000},  # R2 supports 2500000 or 10000000
-    '3': {'name': 'RTL-SDR (bias tee on)', 'device': 'rtl=0,bias=1',   'rf_gain': 49, 'if_gain': 0,  'bb_gain': 0},
-    '4': {'name': 'RTL-SDR (no bias tee)', 'device': 'rtl=0',          'rf_gain': 49, 'if_gain': 0,  'bb_gain': 0},
-    '5': {'name': 'HackRF One',            'device': 'hackrf=0',        'rf_gain': 0,  'if_gain': 40, 'bb_gain': 62},
-    '6': {'name': 'HackRF One (+amp)',     'device': 'hackrf=0',        'rf_gain': 14, 'if_gain': 40, 'bb_gain': 62},
+    '3': {'name': 'RTL-SDR (bias tee on)', 'device': 'rtl=0,bias=1',   'rf_gain': 49, 'if_gain': 0,  'bb_gain': 0,  'bandwidth': 2400000},
+    '4': {'name': 'RTL-SDR (no bias tee)', 'device': 'rtl=0',          'rf_gain': 49, 'if_gain': 0,  'bb_gain': 0,  'bandwidth': 2400000},
+    '5': {'name': 'HackRF One',            'device': 'hackrf=0',        'rf_gain': 0,  'if_gain': 40, 'bb_gain': 62, 'bandwidth': 2500000},
+    '6': {'name': 'HackRF One (+amp)',     'device': 'hackrf=0',        'rf_gain': 14, 'if_gain': 40, 'bb_gain': 62, 'bandwidth': 2500000},
 }
 
 
