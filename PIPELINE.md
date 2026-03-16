@@ -1,5 +1,7 @@
 # H-Line Pipeline — Setup & Command Reference
 
+> The `--process` step currently reprocesses every `.dat` file through VIRGO to produce calibrated CSVs. In a future update, the observer scripts will output this directly on the Pi, so only the plotting step will be needed.
+
 ## Setup
 
 ### 1. Install VIRGO and dependencies
@@ -30,7 +32,51 @@ head -1 ~/hydrogen_obs_pipeline/processed/loop_*/obs_*_spectra_filtered.csv
 # Should show 5 comma-separated values per line
 ```
 
-### 3. Configure your observatory
+### 3. Calibration file
+
+The pipeline **will not work without a calibration file**. You need to record one before processing:
+
+```bash
+# Record calibration (point dish at cold sky, away from galactic plane)
+python3 h_observer.py    # option 3
+# or
+python3 h_quick.py       # option 3
+```
+
+This creates a file like `~/hydrogen_obs/cal_20260208_001639/calibration.dat`. You can either:
+
+- Copy it to the pipeline's default location:
+  ```bash
+  mkdir -p ~/hydrogen_obs_pipeline/calibration
+  cp ~/hydrogen_obs/cal_*/calibration.dat ~/hydrogen_obs_pipeline/calibration/
+  ```
+- Or pass it every time with `--cal`:
+  ```bash
+  python3 hline_pipeline.py --process loop_20260215 --cal ~/hydrogen_obs/cal_20260208_001639/calibration.dat
+  ```
+
+### 4. Match your SDR settings
+
+Open `hline_pipeline.py` and edit the `obs_params` dict in `reprocess_loop()` (around line 109) to match the SDR and gains you used during observation:
+
+```python
+obs_params = {
+    'dev_args': 'airspy=0,bias=1',   # change to match your SDR (e.g. 'rtl=0,bias=1')
+    'rf_gain': 15,                    # match your h_observer.py / h_quick.py gains
+    'if_gain': 15,
+    'bb_gain': 15,
+    'frequency': 1420405750.0,
+    'bandwidth': 3e6,                 # match your SDR bandwidth
+    'channels': 1024,
+    't_sample': 1,
+    'duration': 300,
+    ...
+}
+```
+
+These must match what you used when collecting data. If you used h_observer.py with an RTL-SDR at RF gain 49, set the same values here. Check your h_observer config with `python3 h_observer.py --config`.
+
+### 5. Configure your observatory
 
 Pass your location and dish pointing via command line:
 
