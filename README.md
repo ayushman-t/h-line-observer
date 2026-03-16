@@ -126,6 +126,27 @@ Calibrations are saved separately under `~/hydrogen_obs/cal_*/` and indexed in `
 
 ---
 
+## `hline_pipeline.py` — Analysis & Plotting
+
+Post-processing pipeline for the observation data collected by h_observer.py. Reprocesses raw `.dat` files with VIRGO calibration and generates 3D plots, heatmaps, flipbook animations, multi-day combined plots, and VLSR-corrected stacked spectra.
+
+Requires a **patched VIRGO** that outputs the filtered spectrum as a 5th CSV column. See [PIPELINE.md](PIPELINE.md) for setup and full command reference.
+
+```bash
+# List your loops
+python3 hline_pipeline.py --list
+
+# Process a loop
+python3 hline_pipeline.py --process loop_20260215 --cal ~/hydrogen_obs/cal_*/calibration.dat
+
+# Interactive 3D plot
+python3 hline_pipeline.py --plot3d loop_20260215 --format html
+```
+
+Additional dependencies: `numpy`, `matplotlib`, `scipy`, `plotly` (optional, for interactive HTML plots)
+
+---
+
 ## Results
 
 Collected with a 2.4m dish at Aquila Radio Observatory using these scripts:
