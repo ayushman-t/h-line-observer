@@ -126,7 +126,7 @@ def _pip_install(package):
     return False
 
 
-def build_virgo_cmd(cfg, output_file, plot_file=None, cal_file=None, duration=None):
+def build_virgo_cmd(cfg, output_file, plot_file=None, cal_file=None, spectra_csv=None, power_csv=None, duration=None):
     virgo = find_virgo()
     if not virgo:
         raise RuntimeError("virgo not found — run: python3 h_observer.py --install")
@@ -148,6 +148,10 @@ def build_virgo_cmd(cfg, output_file, plot_file=None, cal_file=None, duration=No
         cmd += ['-p', plot_file, '-n', str(cfg['n_filter']), '-m', str(cfg['m_filter'])]
     if cal_file:
         cmd += ['-C', cal_file]
+    if spectra_csv:
+        cmd += ['-S', spectra_csv]
+    if power_csv:
+        cmd += ['-P', power_csv]
     return cmd
 
 
@@ -213,14 +217,16 @@ def select_calibration(cfg):
 
 def run_observation(cfg, output_dir, obs_id, cal_file=None):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    obs_file  = str(Path(output_dir) / f'{obs_id}_{timestamp}_observation.dat')
-    plot_file = str(Path(output_dir) / f'{obs_id}_{timestamp}_plot.png')
+    obs_file    = str(Path(output_dir) / f'{obs_id}_{timestamp}_observation.dat')
+    plot_file   = str(Path(output_dir) / f'{obs_id}_{timestamp}_plot.png')
+    csv_file    = str(Path(output_dir) / f'{obs_id}_{timestamp}_spectra_filtered.csv') if cal_file else None
+    power_file  = str(Path(output_dir) / f'{obs_id}_{timestamp}_power.csv')
 
     print(f"  [{datetime.now().strftime('%H:%M:%S')}] {obs_id} ({cfg['duration']}s)...",
           end=' ', flush=True)
     try:
         result = subprocess.run(
-            build_virgo_cmd(cfg, obs_file, plot_file, cal_file),
+            build_virgo_cmd(cfg, obs_file, plot_file, cal_file, spectra_csv=csv_file, power_csv=power_file),
             capture_output=True, text=True
         )
         if result.returncode == 0:
