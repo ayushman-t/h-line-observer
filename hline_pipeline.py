@@ -2466,7 +2466,7 @@ def main():
             print("ERROR: No valid loops found.")
         else:
             baseline = not args.no_baseline
-            y_axis = args.y_axis
+            y_axis = 'velocity' if args.vlsr else args.y_axis
             if args.format == 'html':
                 save_path = args.save if args.save else os.path.join(LOCAL_OUTPUT, "hline_stacked.html")
                 plot_stack(processed_paths, y_axis=y_axis,
