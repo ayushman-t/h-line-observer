@@ -311,30 +311,33 @@ def build_vlsr_grid(data, freq, use_vlsr=True):
 
 
 def baseline_correct_spectrum(freq, arr):
-    """Subtract baseline using median of explicitly line-free channels only.
+    """Subtract baseline using linear fit through line-free channels.
 
-    The naive np.median(arr) includes H-line channels — when H-line is bright
-    it pulls the median up, making adjacent channels go artificially negative
-    (the dark band artifact in heatmaps/3D plots at high-emission RA).
-
-    Standard radio-astronomy fix: compute the baseline from channels that are
-    clearly outside the H-line emission window only (line-free channels).
-    We exclude F_REST ± 1.5 MHz which covers the full galactic H-line width.
-    This is a scalar (0th-order) subtraction — robust to RFI in any channel.
+    Uses both lower and clean upper channels for full lever arm (no slope
+    noise = no vertical lines). Falls back to scalar median when too many
+    upper channels are contaminated by H-line emission.
     """
-    # Exclude the H-line emission window from the median estimate.
-    # Band is 1419.8-1421.5 MHz, F_REST=1420.406.
-    # ±0.5 MHz exclusion leaves ~240 line-free bins (low side: 1419.8-1419.9, high side: 1420.9-1421.5).
-    # This prevents the H-line pulling the median up at bright-emission RA positions,
-    # which would cause artificially negative values in surrounding channels (dark band).
-    lo_bound = 1420.006  # F_REST - 0.4 MHz (~84 km/s, covers galactic emission)
+    lo_bound = 1420.006  # F_REST - 0.4 MHz
     hi_bound = 1420.806  # F_REST + 0.4 MHz
     line_free = (freq < lo_bound) | (freq > hi_bound)
+    below = freq < lo_bound
+    above = freq > hi_bound
 
-    if line_free.sum() >= 10:
-        baseline = np.median(arr[line_free])
+    if below.sum() >= 10:
+        lo_coeffs = np.polyfit(freq[below], arr[below], 1)
+        predicted = np.polyval(lo_coeffs, freq[above])
+        residual = arr[above] - predicted
+        clean_above = above.copy()
+        for j, idx in enumerate(np.where(above)[0]):
+            if residual[j] > 2.0:
+                clean_above[idx] = False
+        if clean_above.sum() >= 15:
+            coeffs = np.polyfit(freq[below | clean_above], arr[below | clean_above], 1)
+            baseline = np.polyval(coeffs, freq)
+        else:
+            baseline = np.median(arr[line_free])
     else:
-        baseline = np.median(arr)  # fallback (shouldn't happen with our band)
+        baseline = np.median(arr)
 
     return arr - baseline
 
